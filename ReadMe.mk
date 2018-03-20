@@ -1,0 +1,1 @@
+This is a spider for grabbing comic books from internet.
