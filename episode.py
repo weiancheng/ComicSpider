@@ -4,42 +4,52 @@ import re
 
 
 class Episode:
-    def __init__(self):
+    def __init__(self, total):
         self.__ti = ''
         self.__cs = ''
-        self.__count = 0
+        self.__count = total
         self.__content = ''
+        self.__ch = -1
+        self.__url = ''
 
-    def run(self, url):
-        response = requests.get(url)
+    def run(self, url, ch):
+        self.__url = url + '?ch=' + str(ch)
+        response = requests.get(self.__url)
         if response.status_code != 200:
             print('status code: ' + str(response.status_code))
-            return
+            return None
 
-        self.__content = str(response.content)
+        self.__content = response.content.decode("big5")
+        self.__ch = str(ch)
         self.get_ti()
         self.get_cs()
-        self.get_page_counts()
-        return self.get_photos()
 
     def get_ti(self):
+        if len(self.__content) == 0:
+            return
+
         r = re.search("var ti=([\d]+);", self.__content)
         if r:
             self.__ti = str(r.group(1))
 
     def get_cs(self):
-        r = re.search("var cs=\\\\'([\d\w]+)\\\\';", self.__content)
+        if len(self.__content) == 0:
+            return
+
+        r = re.search("var cs=\\'([\d\w]+)\\';", self.__content)
         if r:
             self.__cs = str(r.group(1))
 
-    def get_page_counts(self):
-        r = re.search("var chs=([\d]+);", self.__content)
-        if r:
-            self.__count = int(r.group(1))
+    @staticmethod
+    def is_valid(photo):
+        response = requests.get(photo)
+        if response.status_code != 200:
+            return False
+        return True
 
-    def get_photos(self):
-        photos = list()
-        for i in range(self.__count):
+    def get_photo(self, index):
+        src = ''
+        for i in range(self.__count+1):
             aafbe = util.lc(util.su(self.__cs, i * util.y + 0, 2))
             wivbj = util.lc(util.su(self.__cs, i * util.y + 2, 2))
             okhrp = util.lc(util.su(self.__cs, i * util.y + 4, 40))
@@ -52,10 +62,30 @@ class Episode:
                   '/' + \
                   wivbj + \
                   '/' + \
-                  util.nn(util.p) + \
+                  util.nn(index) + \
                   '_' + \
-                  util.su(okhrp, util.mm(util.p), 3) + \
+                  util.su(okhrp, util.mm(index), 3) + \
                   '.jpg'
-            photos.append(src)
+            if wivbj == self.__ch:
+                break
 
-        return photos
+        if self.is_valid(src):
+            return src
+        return ''
+
+
+def main():
+    url = 'http://v.comicbus.com/online/comic-103.html'
+    episode = Episode(509)
+    episode.run(url, 903)
+    index = 1
+    while True:
+        u = episode.get_photo(index)
+        if len(u) == 0:
+            break
+        print(u)
+        index += 1
+
+
+if __name__ == '__main__':
+    main()

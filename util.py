@@ -1,7 +1,6 @@
 import re
 
 y = 46
-p = 1
 
 
 def parse_int(sin):
