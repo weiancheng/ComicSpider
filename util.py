@@ -1,5 +1,8 @@
 import re
 
+y = 46
+p = 1
+
 
 def parse_int(sin):
     m = re.search(r'^(\d+)[.,]?\d*?', str(sin))
