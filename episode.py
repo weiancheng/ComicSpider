@@ -1,13 +1,14 @@
 import util
 import requests
 import re
+from http import HTTPStatus
+import urllib
 
 
 class Episode:
-    def __init__(self, total):
+    def __init__(self):
         self.__ti = ''
         self.__cs = ''
-        self.__count = total
         self.__content = ''
         self.__ch = -1
         self.__url = ''
@@ -15,7 +16,7 @@ class Episode:
     def run(self, url, ch):
         self.__url = url + '?ch=' + str(ch)
         response = requests.get(self.__url)
-        if response.status_code != 200:
+        if response.status_code != HTTPStatus.OK:
             print('status code: ' + str(response.status_code))
             return None
 
@@ -42,32 +43,36 @@ class Episode:
 
     @staticmethod
     def is_valid(photo):
-        response = requests.get(photo)
-        if response.status_code != 200:
+        try:
+            urllib.request.urlopen(photo)
+        except urllib.error.HTTPError:
+            return False
+        except urllib.error.URLError:
             return False
         return True
 
     def get_photo(self, index):
-        src = ''
-        for i in range(self.__count+1):
+        i = 0
+        while True:
             aafbe = util.lc(util.su(self.__cs, i * util.y + 0, 2))
             wivbj = util.lc(util.su(self.__cs, i * util.y + 2, 2))
             okhrp = util.lc(util.su(self.__cs, i * util.y + 4, 40))
-            src = 'http://img' + \
-                  util.su(aafbe, 0, 1) + \
-                  '.8comic.com/' + \
-                  util.su(aafbe, 1, 1) + \
-                  '/' + \
-                  self.__ti + \
-                  '/' + \
-                  wivbj + \
-                  '/' + \
-                  util.nn(index) + \
-                  '_' + \
-                  util.su(okhrp, util.mm(index), 3) + \
-                  '.jpg'
-            if wivbj == self.__ch:
+            if aafbe == self.__ch:
+                src = 'http://img' + \
+                      util.su(wivbj, 0, 1) + \
+                      '.8comic.com/' + \
+                      util.su(wivbj, 1, 1) + \
+                      '/' + \
+                      self.__ti + \
+                      '/' + \
+                      aafbe + \
+                      '/' + \
+                      util.nn(index) + \
+                      '_' + \
+                      util.su(okhrp, util.mm(index), 3) + \
+                      '.jpg'
                 break
+            i += 1
 
         if self.is_valid(src):
             return src
@@ -76,15 +81,10 @@ class Episode:
 
 def main():
     url = 'http://v.comicbus.com/online/comic-103.html'
-    episode = Episode(509)
+    episode = Episode()
     episode.run(url, 903)
-    index = 1
-    while True:
-        u = episode.get_photo(index)
-        if len(u) == 0:
-            break
-        print(u)
-        index += 1
+    for i in range(1, 19):
+        print(episode.get_photo(i))
 
 
 if __name__ == '__main__':
