@@ -1,8 +1,15 @@
 import util
 import requests
 import re
-from http import HTTPStatus
+import sys
 import urllib
+
+if sys.version_info >= (3, 5, 0):
+    from http import HTTPStatus as StatusCode
+elif sys.version_info > (3, 0, 0):
+    from http import client as StatusCode
+else:
+    import httplib as StatusCode
 
 
 class Episode:
@@ -16,7 +23,7 @@ class Episode:
     def run(self, url, ch):
         self.__url = url + '?ch=' + str(ch)
         response = requests.get(self.__url)
-        if response.status_code != HTTPStatus.OK:
+        if response.status_code != StatusCode.OK:
             print('status code: ' + str(response.status_code))
             return None
 

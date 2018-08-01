@@ -1,7 +1,14 @@
 import requests
+import sys
 from bs4 import BeautifulSoup
 from episode import Episode
 
+if sys.version_info >= (3, 5, 0):
+    from http import HTTPStatus as StatusCode
+elif sys.version_info > (3, 0, 0):
+    from http import client as StatusCode
+else:
+    import httplib as StatusCode
 
 class ComicBook:
     def __init__(self):
@@ -18,7 +25,7 @@ class ComicBook:
         self.__url = 'http://www.comicbus.com/html/' + self.__id + '.html'
 
         response = requests.get(self.__url)
-        if response.status_code != 200:
+        if response.status_code != StatusCode.OK:
             print('status code: ' + str(response.status_code))
             return False
 
