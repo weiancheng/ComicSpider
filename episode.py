@@ -19,6 +19,8 @@ class Episode:
         self.__content = ''
         self.__ch = -1
         self.__url = ''
+        self.__parameters = dict()
+        self.__count = 0
 
     def run(self, url, ch):
         self.__url = url + '?ch=' + str(ch)
@@ -31,6 +33,7 @@ class Episode:
         self.__ch = str(ch)
         self.get_ti()
         self.get_cs()
+        self.get_parameters()
 
     def get_ti(self):
         if len(self.__content) == 0:
@@ -48,6 +51,32 @@ class Episode:
         if r:
             self.__cs = str(r.group(1))
 
+    def get_parameters(self):
+        if len(self.__content) == 0 or len(self.__cs) == 0:
+            return
+
+        r = re.search("var cs=\\'[\d\w]+\\';"
+                      "for\(var i=0;i<([\d]+);i\+\+\)"
+                      "{var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
+                      "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
+                      "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
+                      "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);", self.__content)
+
+        if r:
+            self.__count = int(r.group(1))
+            self.__parameters[str(r.group(2))] = lambda i: util.lc(util.su(self.__cs,
+                                                                           i * util.y + int(r.group(3)),
+                                                                           int(r.group(4))))
+            self.__parameters[str(r.group(5))] = lambda i: util.lc(util.su(self.__cs,
+                                                                           i * util.y + int(r.group(6)),
+                                                                           int(r.group(7))))
+            self.__parameters[str(r.group(8))] = lambda i: util.lc(util.su(self.__cs,
+                                                                           i * util.y + int(r.group(9)),
+                                                                           int(r.group(10))))
+            self.__parameters[str(r.group(11))] = lambda i: util.lc(util.su(self.__cs,
+                                                                            i * util.y + int(r.group(12)),
+                                                                            int(r.group(13))))
+
     @staticmethod
     def is_valid(photo):
         try:
@@ -60,37 +89,37 @@ class Episode:
 
     def get_photo(self, index):
         i = 0
+        r = re.search("if\(([\w]+)== ch\){ci=i;ge\('TheImg'\)\.src='http://img'\+su\(([\w]+), 0, "
+                      "1\)\+'\.8comic\.com/'\+su\(([\w]+),1,1\)\+'/'\+ti\+'/'\+([\w]+)\+'/'\+\s+"
+                      "nn\(p\)\+'_'\+su\(([\w]+),mm\(p\),3\)\+'\.jpg'", self.__content)
+
         while True:
-            aafbe = util.lc(util.su(self.__cs, i * util.y + 0, 2))
-            wivbj = util.lc(util.su(self.__cs, i * util.y + 2, 2))
-            okhrp = util.lc(util.su(self.__cs, i * util.y + 4, 40))
-            if aafbe == self.__ch:
+            if self.__parameters[str(r.group(1))](i) == self.__ch:
                 src = 'http://img' + \
-                      util.su(wivbj, 0, 1) + \
+                      util.su(self.__parameters[str(r.group(2))](i), 0, 1) + \
                       '.8comic.com/' + \
-                      util.su(wivbj, 1, 1) + \
+                      util.su(self.__parameters[str(r.group(3))](i), 1, 1) + \
                       '/' + \
                       self.__ti + \
                       '/' + \
-                      aafbe + \
+                      self.__parameters[str(r.group(4))](i) + \
                       '/' + \
                       util.nn(index) + \
                       '_' + \
-                      util.su(okhrp, util.mm(index), 3) + \
+                      util.su(self.__parameters[str(r.group(5))](i), util.mm(index), 3) + \
                       '.jpg'
                 break
             i += 1
-
         if self.is_valid(src):
             return src
         return ''
 
 
 def main():
-    url = 'http://v.comicbus.com/online/comic-103.html'
+    url = 'http://v.comicbus.com/online/comic-14438.html'
     episode = Episode()
-    episode.run(url, 903)
-    for i in range(1, 19):
+    episode.run(url, 5)
+    for i in range(1, 20):
         print(episode.get_photo(i))
 
 

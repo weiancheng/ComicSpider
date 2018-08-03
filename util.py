@@ -23,7 +23,7 @@ def mm(p):
 
 
 def su(a, b, c):
-    return a[b:b+c]
+    return str(a[b:b+c])
 
 
 def lc(l):
