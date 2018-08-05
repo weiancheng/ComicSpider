@@ -19,9 +19,6 @@ class ComicBook:
         self.__episode = Episode()
 
     def crawl(self, comic_id):
-        if not self.__check_id(comic_id):
-            return False
-
         self.__id = comic_id
         self.__url = 'http://www.comicbus.com/html/' + self.__id + '.html'
 
@@ -67,10 +64,6 @@ class ComicBook:
                 episodes.append(self.__episode.get_photo(i))
 
         return episodes
-
-    @staticmethod
-    def __check_id(comic_id):
-        return True
 
 
 def main():
