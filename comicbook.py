@@ -10,6 +10,7 @@ elif sys.version_info > (3, 0, 0):
 else:
     import httplib as StatusCode
 
+
 class ComicBook:
     def __init__(self):
         self.__id = -1
@@ -29,7 +30,7 @@ class ComicBook:
             print('status code: ' + str(response.status_code))
             return False
 
-        soup = BeautifulSoup(response.content.decode("big5"), 'lxml')
+        soup = BeautifulSoup(response.content, 'lxml')
         tds = soup.find('table', id='div_li1').find_all('td')
         index = 0
         for td in tds:
@@ -57,8 +58,15 @@ class ComicBook:
         if index not in self.__episodes:
             return []
 
-        print(self.__episodes[index][1])
-        print(self.__episode.run(self.__episodes[index][1]))
+        self.__episode.run(self.__episodes[index][1], index)
+
+        episodes = list()
+
+        for i in range(1, self.__episode.get_photo_counts()):
+            if len(self.__episode.get_photo(i)) > 0:
+                episodes.append(self.__episode.get_photo(i))
+
+        return episodes
 
     @staticmethod
     def __check_id(comic_id):
@@ -66,12 +74,13 @@ class ComicBook:
 
 
 def main():
-    comic_id = '103'
+    # comic_id = '103'
     # comic_id = '15603'
+    comic_id = '9149'
     comic = ComicBook()
     comic.crawl(comic_id)
     print(comic.list())
-    comic.get_episode(500)
+    print(comic.get_episode(62))
 
 
 if __name__ == '__main__':

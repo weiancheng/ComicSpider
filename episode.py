@@ -2,6 +2,7 @@ import util
 import requests
 import re
 import sys
+from urllib.request import urlopen
 import urllib
 
 if sys.version_info >= (3, 5, 0):
@@ -55,9 +56,8 @@ class Episode:
         if len(self.__content) == 0 or len(self.__cs) == 0:
             return
 
-        r = re.search("var cs=\\'[\d\w]+\\';"
-                      "for\(var i=0;i<([\d]+);i\+\+\)"
-                      "{var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
+        r = re.search("var cs=\\'[\d\w]+\\';for\(var i=0;i<([\d]+);i\+\+\){"
+                      "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
                       "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
                       "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);"
                       "var ([\w]+)\s*=\s*lc\(su\(cs,i\*y\+([\d]+),([\d]+)\)\);", self.__content)
@@ -80,7 +80,7 @@ class Episode:
     @staticmethod
     def is_valid(photo):
         try:
-            urllib.request.urlopen(photo)
+            urlopen(photo)
         except urllib.error.HTTPError:
             return False
         except urllib.error.URLError:
@@ -114,12 +114,15 @@ class Episode:
             return src
         return ''
 
+    def get_photo_counts(self):
+        return self.__count
+
 
 def main():
-    url = 'http://v.comicbus.com/online/comic-14438.html'
+    url = 'http://v.comicbus.com/online/comic-12620.html'
     episode = Episode()
-    episode.run(url, 5)
-    for i in range(1, 20):
+    episode.run(url, 218)
+    for i in range(1, episode.get_photo_counts()):
         print(episode.get_photo(i))
 
 
