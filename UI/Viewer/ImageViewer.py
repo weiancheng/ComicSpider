@@ -1,7 +1,7 @@
 import requests
 
-from PyQt5.QtWidgets import QWidget, QApplication, QHBoxLayout, QLabel
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
 

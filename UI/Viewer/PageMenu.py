@@ -1,4 +1,4 @@
-from PyQt5.QWidgets import QListWidget
+from PyQt5.QtWidgets import QListWidget
 
 
 class PageMenu(QListWidget):
@@ -10,4 +10,3 @@ class PageMenu(QListWidget):
 
     def currentItem(self):
         pass
-
