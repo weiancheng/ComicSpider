@@ -34,12 +34,12 @@ class ImageViewer(QLabel):
 
     def resize(self, height, width):
         self.__now_pixmap = self.__now_pixmap.scaled(height, width, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.__heigth = self.__now_pixmap.height()
+        self.__height = self.__now_pixmap.height()
         self.__width = self.__now_pixmap.width()
         super().setPixmap(self.__now_pixmap)
 
     def reset(self):
         self.__now_pixmap = self.__orig_pixmap
-        self.__heigth = self.__now_pixmap.height()
+        self.__height = self.__now_pixmap.height()
         self.__width = self.__now_pixmap.width()
         super().setPixmap(self.__now_pixmap)
