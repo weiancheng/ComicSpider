@@ -39,3 +39,9 @@ def lc(l):
         return str(8000 + az.index(b))
     else:
         return str(az.index(a) * 52 + az.index(b))
+
+
+def initpage(cs):
+    cs_len = len(cs)
+    for i in range(int(cs_len/50)):
+        if su(cs, i*50, 4):

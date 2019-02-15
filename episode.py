@@ -89,7 +89,7 @@ class Episode:
 
     def get_photo(self, index):
         i = 0
-        r = re.search("if\(([\w]+)== ch\){ci=i;ge\('TheImg'\)\.src='http://img'\+su\(([\w]+), 0, "
+        r = re.search("if\(([\w]+)== ch\){ci=i;ge\('TheImg'\)\.src='//img'\+su\(([\w]+), 0, "
                       "1\)\+'\.8comic\.com/'\+su\(([\w]+),1,1\)\+'/'\+ti\+'/'\+([\w]+)\+'/'\+\s+"
                       "nn\(p\)\+'_'\+su\(([\w]+),mm\(p\),3\)\+'\.jpg'", self.__content)
 
@@ -122,8 +122,15 @@ def main():
     url = 'http://v.comicbus.com/online/comic-12620.html'
     episode = Episode()
     episode.run(url, 218)
+    print('counts: ' + str(episode.get_photo_counts()))
+    srcs = list()
     for i in range(1, episode.get_photo_counts()):
-        print(episode.get_photo(i))
+        src = episode.get_photo(i)
+        if len(src) == 0:
+            break
+        srcs.append(src)
+    print(url)
+    print(srcs)
 
 
 if __name__ == '__main__':
