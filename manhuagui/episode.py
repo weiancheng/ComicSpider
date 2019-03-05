@@ -57,18 +57,8 @@ def episode(url):
     result['params'] = params
     result['cname'] = info['cname']
     result['bname'] = info['bname']
-    result['cid'] = info['cid']
 
     for f in info['files']:
         result['files'].append('https://' + server + info['path'] + f)
 
     return result
-
-
-def main():
-    url = 'http://www.manhuagui.com/comic/9414/94568.html'
-    print(episode(url))
-
-
-if __name__ == '__main__':
-    main()
