@@ -37,12 +37,3 @@ def comic_book(url):
         data['comics'].append({r.group(1): [a['title'], 'https://www.manhuagui.com' + a['href']]})
 
     return data
-
-
-def main():
-    url = 'https://www.manhuagui.com/comic/7580/'
-    print(comic_book(url))
-
-
-if __name__ == '__main__':
-    main()
