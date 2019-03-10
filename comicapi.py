@@ -1,24 +1,29 @@
-from search_comic import ComicIndex
-from comicbook import ComicBook
+from manhuagui.crawl_manhuagui import crawl_manhuagui
+from manhuagui.episode import episode
+from manhuagui.comic_book import comic_book
+from manhuagui.constant import MANHUAGUI_COMIC_URL
 
 
 class ComicAPI:
     def __init__(self):
-        self.__ci = ComicIndex()
-        self.__book = ComicBook()
+        pass
 
     def get_list(self):
-        return self.__ci.get_list()
+        yield crawl_manhuagui()
 
     def get_comic_book(self, index):
-        pass
+        url = MANHUAGUI_COMIC_URL + str(index)
+        data = comic_book(url)
+        return data
 
-    def get_content(self, index, episode):
-        pass
+    def get_content(self, url):
+        return episode(url)
 
 
 def main():
-    pass
+    comic = ComicAPI()
+    print(comic.get_comic_book('https://www.manhuagui.com/comic/7580'))
+    print(comic.get_content('https://www.manhuagui.com/comic/3/64331.html'))
 
 
 if __name__ == '__main__':

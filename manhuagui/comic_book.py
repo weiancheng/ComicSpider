@@ -1,6 +1,7 @@
 import re
 import requests
 from bs4 import BeautifulSoup
+from manhuagui.constant import MANHUAGUI_URL
 
 
 def comic_book(url):
@@ -34,6 +35,6 @@ def comic_book(url):
         if not r:
             continue
 
-        data['comics'].append({r.group(1): [a['title'], 'https://www.manhuagui.com' + a['href']]})
+        data['comics'].append([r.group(1), a['title'], MANHUAGUI_URL+a['href']])
 
     return data
