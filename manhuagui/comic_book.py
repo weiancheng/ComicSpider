@@ -15,7 +15,7 @@ def comic_book(url):
     response = requests.get(url)
     if response.status_code != requests.codes.ok:
         print('[Error] status code: ' + str(response.status_code))
-        exit(0)
+        return None
 
     soup = BeautifulSoup(response.text, 'lxml')
 
