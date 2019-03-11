@@ -2,8 +2,8 @@ import requests
 from manhuagui.constant import MANHUAGUI_COMIC_URL
 
 
-def crawl_manhuagui(limited=0):
-    index = 1
+def crawl_manhuagui(start=0, end=0):
+    index = start
 
     while True:
         response = requests.get(MANHUAGUI_COMIC_URL + str(index))
@@ -12,7 +12,7 @@ def crawl_manhuagui(limited=0):
 
         yield MANHUAGUI_COMIC_URL + str(index)
 
-        if index == limited and limited != 0:
+        if index == end and end != 0:
             break
 
         index += 1
