@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from manhuagui.constant import MANHUAGUI_URL
 
 
-def comic_book(url):
+def comic_book(session, url):
     if len(url) == 0:
         return None
 
@@ -12,7 +12,8 @@ def comic_book(url):
 
     data['url'] = url
 
-    response = requests.get(url)
+    # response = requests.get(url)
+    response = session.get(url)
     if response.status_code != requests.codes.ok:
         print('[Error] status code: ' + str(response.status_code))
         return None
