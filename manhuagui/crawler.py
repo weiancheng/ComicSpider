@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from manhuagui.constant import MANHUAGUI_URL
-from manhuagui.constant import MANHUAGUI_COMIC_URL
 import requests
 import execjs
 import re
