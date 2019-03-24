@@ -4,6 +4,7 @@ import requests
 import execjs
 import re
 import json
+import time
 
 
 NEWEST_INDEX = '31409'
@@ -109,5 +110,6 @@ class Crawler:
                 continue
 
             chapter.append(ch)
+            time.sleep(2)
 
         return album
