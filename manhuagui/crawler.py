@@ -4,7 +4,6 @@ import requests
 import execjs
 import re
 import json
-import time
 
 
 NEWEST_INDEX = '31409'
@@ -16,6 +15,24 @@ class Crawler:
         self.__session = requests.Session()
 
     def chapter(self, url):
+        """
+        {
+            'referer': string,
+            'pictures': list
+            [
+                url: string,
+                ...
+            ],
+            'params': dict
+            {
+                'cid': string,
+                'md5': string
+            },
+            'cname': string, chapter title,
+            'bname': string, book name
+        }
+        """
+
         result = {
             'referer': url,
             'pictures': list()
@@ -67,6 +84,18 @@ class Crawler:
         return result
 
     def album(self, url):
+        """
+        {
+            'url': string,
+            'book-title': string,
+            'comics': list
+            [
+                [id: string, chapter title: string, url: string],
+                ...
+            ]
+        }
+        """
+
         data = dict()
 
         data['url'] = url
@@ -95,21 +124,3 @@ class Crawler:
             data['comics'].append([r.group(1), a['title'], MANHUAGUI_URL + a['href']])
 
         return data
-
-    def crawl(self, url):
-        album = self.album(url)
-        if not album:
-            return None
-
-        if len(album['comics']) == 0:
-            return None
-
-        for chapter in album['comics']:
-            ch = self.chapter(chapter[2])
-            if not ch or len(ch) == 0:
-                continue
-
-            chapter.append(ch)
-            time.sleep(2)
-
-        return album
