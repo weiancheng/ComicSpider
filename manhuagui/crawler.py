@@ -87,18 +87,23 @@ class Crawler:
         """
         {
             'url': string,
+            'index': int,
             'book-title': string,
             'comics': list
-            [
-                [id: string, chapter title: string, url: string],
+            {
+                id: string:
+                {
+                    [chapter title: string, url: string]
+                },
                 ...
-            ]
+            }
         }
         """
 
         data = dict()
 
         data['url'] = url
+        data['index'] = int(re.search("https://www\.manhuagui\.com/comic/([\d]+)/*", url).group(1))
         response = self.__session.get(url)
         if response.status_code != requests.codes.ok:
             print('[Error] status code: ' + str(response.status_code))
@@ -109,7 +114,7 @@ class Crawler:
         book_title = soup.find('div', class_='book-title')
         data['book-title'] = book_title.text
 
-        data['comics'] = list()
+        data['comics'] = dict()
 
         tags_li = soup.find_all('li')
         for li in tags_li:
@@ -121,6 +126,6 @@ class Crawler:
             if not r:
                 continue
 
-            data['comics'].append([r.group(1), a['title'], MANHUAGUI_URL + a['href']])
+            data['comics'][r.group(1)] = [a['title'], MANHUAGUI_URL + a['href']]
 
         return data

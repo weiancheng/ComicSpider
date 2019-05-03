@@ -1,69 +1,131 @@
 import json
-import argparse
-from manga import comic_book_album
-from manga import comic_book_chapter
-from manhuagui.constant import MANHUAGUI_COMIC_URL
+import os
+import time
+from manhuagui.crawler import Crawler
 
 
-def download(start_index=0, end_index=0):
-    comic_books = dict()
+"""
+manhuagui {
+    count: int
+}
 
-    for index in range(start_index, end_index + 1):
-        comic_books.clear()
-        album = comic_book_album(MANHUAGUI_COMIC_URL + str(index))
-        comic_books['title'] = album['book-title']
-        comic_books['uri'] = album['url']
-        comic_books['album'] = list()
-        for chapter in album['comics']:
-            c = dict()
-            c['uri'] = chapter[2]
-            c['title'] = chapter[1]
-            c['pics'] = comic_book_chapter(chapter[2])
-            comic_books['album'].append(c)
+album {
+    id
+    name
+    chapter: dict
+    {
+        cid: [title, [url, ...]]
+        ...
+    }
+}
+"""
 
-        file_name = str(index) + '.json'
-        output = json.dumps(comic_books)
+
+class MangaDownloader:
+    def __init__(self):
+        self.TABLE = 'table.json'
+        self.table = None
+        self.manhuagui_crawler = Crawler()
+
+    def last_time(self):
+        # zero means that manhuagui just initialized now
+        if self.table['count'] == 0:
+            return
+
+        # let's do the current count
+        album = self.download_manhuagui_album('https://www.manhuagui.com/comic/' + str(self.table['count']))
+        current_album = self.read_album()
+
+        for chapter in album['comics'].keys():
+            if chapter in current_album['chapter'].keys():
+                continue
+
+            current_album['chapter'][chapter] = [album['comics'][chapter]]
+
+        self.update_album(current_album)
+
+        self.table['count'] += 1
+
+    def read_album(self):
+        file_name = str(self.table['count']) + '.json'
+        if not os.path.exists(file_name):
+            return None
+
+        with open(file_name, 'r') as f:
+            content = f.read()
+
+        return json.loads(content)
+
+    def read_manhuagui(self):
+        if not os.path.exists(self.TABLE):
+            self.init_manhuagui()
+            return
+
+        with open(self.TABLE, 'r') as f:
+            self.table = json.loads(f.read())
+
+    def init_manhuagui(self):
+        self.table = {
+            'count': 0
+        }
+
+        with open(self.TABLE, 'w') as f:
+            f.write(json.dumps(self.table))
+
+    def update_manhuagui(self):
+        with open(self.TABLE, 'w') as f:
+            f.write(json.dumps(self.table))
+
+    def update_album(self, album):
+        file_name = str(album['id']) + '.json'
         with open(file_name, 'w') as f:
-            f.write(output)
+            f.write(json.dumps(album))
 
+        self.table['count'] = album['id']
 
-def get_args():
-    parser = argparse.ArgumentParser()
+    def download_album(self, url):
+        album = self.download_manhuagui_album(url)
 
-    parser.add_argument(
-        '-s',
-        '--start',
-        type=int,
-        help='start comic id',
-        dest='start_index',
-        required=False
-    )
+        output = dict()
+        output['id'] = album['index']
+        output['name'] = album['book-title']
+        output['chapter'] = dict()
 
-    parser.add_argument(
-        '-e',
-        '--end',
-        type=int,
-        help='end comic id',
-        dest='end_index',
-        required=False
-    )
+        for ch in album['comics'].keys():
+            c = self.download_manhuagui_chapter(album['comics'][ch][1])
+            output['chapter'][c['params']['cid']] = [c['cname'], c['pictures']]
+            print(output['chapter'][c['params']['cid']])
 
-    args = parser.parse_args()
+        return output
 
-    start = args.start_index if args.start_index else 0
-    end = args.end_index if args.end_index else 0
+    def download_manhuagui_album(self, url):
+        time.sleep(3)
+        return self.manhuagui_crawler.album(url)
 
-    return start, end
+    def download_manhuagui_chapter(self, url):
+        time.sleep(3)
+        return self.manhuagui_crawler.chapter(url)
 
 
 def main():
-    start_index, end_index = get_args()
+    downloader = MangaDownloader()
 
-    if start_index > end_index:
-        print('Error: start index must smaller than end index')
-        exit(-1)
+    downloader.read_manhuagui()
 
-    download(start_index, end_index)
+    current_count = downloader.table['count']
+
+    if current_count == 0:
+        current_count = 1
+
+    while True:
+        url = 'https://www.manhuagui.com/comic/' + str(current_count)
+        album = downloader.download_album(url)
+        downloader.update_album(album)
+        current_count += 1
+        downloader.table['count'] += 1
+        downloader.update_manhuagui()
+        if current_count == 3:
+            break
 
 
 if __name__ == '__main__':
