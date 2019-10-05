@@ -1,45 +1,54 @@
-import requests
-
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+
+import os
+import requests
 
 
 class ImageViewer(QLabel):
     def __init__(self):
         super().__init__()
-        self.__orig_pixmap = QPixmap()
-        self.__now_pixmap = None
-        self.__height = 0
-        self.__width = 0
+        self.__pixmap = None
+        self.__current_pixmap = None
 
-    def loadFromData(self, index, url):
+    def load_from_url(self, url):
         response = requests.get(url)
-        if response.status_code != 200:
-            print('[PageMenu] status code: ' + str(response.status_code))
-            return False
+        if response.status_code != requests.codes.ok:
+            print('[Error] URL: ' + url + ' is not valid')
+            return -1
 
-        self.__orig_pixmap.loadFromData(response.content)
-        self.__now_pixmap = self.__orig_pixmap
-        self.__height = self.__orig_pixmap.height()
-        self.__width = self.__orig_pixmap.width()
-        super().setPixmap(self.__now_pixmap)
-        return True
+        self.__pixmap = QPixmap()
+        self.__pixmap.loadFromData(response.content)
+        self.__current_pixmap = self.__pixmap
+        super().setPixmap(self.__current_pixmap)
+        return 0
 
-    def height(self):
-        return self.__height
+    def load_from_local(self, path):
+        if not os.path.exists(path):
+            print("[Error] file " + path + " is not exist")
+            return -1
 
-    def width(self):
-        return self.__width
+        self.__pixmap = QPixmap(path)
+        self.__current_pixmap = self.__pixmap
+        super().setPixmap(self.__current_pixmap)
+        return 0
 
     def resize(self, height, width):
-        self.__now_pixmap = self.__now_pixmap.scaled(height, width, Qt.KeepAspectRatio, Qt.FastTransformation)
-        self.__height = self.__now_pixmap.height()
-        self.__width = self.__now_pixmap.width()
-        super().setPixmap(self.__now_pixmap)
+        if not self.__pixmap:
+            return -1
+
+        self.__current_pixmap = self.__pixmap.scaledToHeight(height)
+        self.__current_pixmap = self.__current_pixmap.scaledToWidth(width)
+        super().setPixmap(self.__current_pixmap)
+        return 0
+
+    def height(self):
+        return self.__current_pixmap.height()
+
+    def width(self):
+        return self.__current_pixmap.width()
 
     def reset(self):
-        self.__now_pixmap = self.__orig_pixmap
-        self.__height = self.__now_pixmap.height()
-        self.__width = self.__now_pixmap.width()
-        super().setPixmap(self.__now_pixmap)
+        self.__current_pixmap = self.__pixmap
+        super().setPixmap(self.__current_pixmap)
+
