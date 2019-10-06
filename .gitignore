@@ -1,0 +1,6 @@
+.idea/
+__pycache__
+UI/Viewer/__pycache__
+UI/__pycache__
+manhuagui/__pycache__
+*.json
